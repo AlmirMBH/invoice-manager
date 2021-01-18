@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\Project;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
@@ -23,11 +24,12 @@ class Excel implements FromArray, WithHeadings, WithStyles, WithColumnWidths
     {
         $id = $this->id;
 
-        if($id == 1){
+        if($id == Project::$atemshutz){
             $headerHg001 = 'HYG HG-001';
             $headerTypII = 'Typ II';
             $headerTypIIR = 'Typ IIR';
             $headerHg002 = 'N95 HG-002';
+            $headerFFP3 = 'FFP3';
             $headerHg005 = 'SHILD HG-005';
             $headerRedMask = 'HYG Rote Masken';
             $headerDoorHandler = 'Doorhandler';
@@ -38,7 +40,7 @@ class Excel implements FromArray, WithHeadings, WithStyles, WithColumnWidths
             $headerHanddesinf = 'Handdesinf.';
             $headerFlachendes = 'Flachendes';
             $headerHandSpender = 'Hand Spender';
-        }elseif($id == 2){
+        }elseif($id == Project::$flipflop){
             $switzerland = 'Switzerland';
             $germany = 'Germany';
             $italy = 'Italy';
@@ -64,12 +66,13 @@ class Excel implements FromArray, WithHeadings, WithStyles, WithColumnWidths
             isset($headerTypII) ? $headerTypII : $switzerland,
             isset($headerTypIIR) ? $headerTypIIR : $italy,
             isset($headerHg002) ? $headerHg002 : $france,
-            isset($headerHg005) ? $headerHg005 : $netherlands,
-            isset($headerRedMask) ? $headerRedMask : $spain,
-            isset($headerDoorHandler) ? $headerDoorHandler : $england,
-            isset($headerMedEinweg) ? $headerMedEinweg : $austria,
-            isset($headerStoff) ? $headerStoff : $portugal,
+            isset($headerFFP3) ? $headerFFP3 : $netherlands,
+            isset($headerHg005) ? $headerHg005 : $spain,
+            isset($headerRedMask) ? $headerRedMask : $england,
+            isset($headerDoorHandler) ? $headerDoorHandler : $austria,
+            isset($headerMedEinweg) ? $headerMedEinweg : $portugal,
             isset($headerTrennwand) ? $headerTrennwand : 'Betrag',
+            isset($headerStoff) ? $headerStoff : '',
             isset($headerThermometer) ? $headerThermometer : '',
             isset($headerHanddesinf) ? $headerHanddesinf : '',
             isset($headerFlachendes) ? $headerFlachendes : '',
@@ -98,6 +101,7 @@ class Excel implements FromArray, WithHeadings, WithStyles, WithColumnWidths
             'O' => 20,
             'P' => 20,
             'Q' => 20,
+            'R' => 20,
         ];
     }
 
@@ -115,12 +119,12 @@ class Excel implements FromArray, WithHeadings, WithStyles, WithColumnWidths
         $orders = OrderTransformer::transformOrder($dbOrders);
 
         // FlipFlop orders ($id=2) have fewer columns; $columnLimit used to avoid empty columns
-        if($id == 2){
+        if($id == Project::$flipflop){
             $columnLimit = '';
         }
         foreach($orders as $order){
 
-                $formattedOrderProductColors = array(
+                $formattedOrders = array(
                     'company'               => $order->billing_company,
                     'name'                  => $order->billing_first_name,
                     'surname'               => $order->billing_last_name,
@@ -133,12 +137,13 @@ class Excel implements FromArray, WithHeadings, WithStyles, WithColumnWidths
                     'typII'                 => $order->typII ?: $order->switzerland,
                     'typIIR'                => $order->typIIR ?: $order->italy,
                     'hg002'                 => $order->hg002 ?: $order->france,
-                    'hg005'                 => $order->hg005 ?: $order->netherlands,
-                    'redMask'               => $order->redMask ?: $order->spain,
-                    'doorHandler'           => $order->doorHandler ?: $order->england,
-                    'medEinweg'             => $order->medEinweg ?: $order->austria,
-                    'stoff'                 => $order->stoff ?: $order->portugal,
-                    'trennwand'             => isset($columnLimit) ? $order->order_total_amount : $order->trennwand,
+                    'ffp3'                  => $order->ffp3 ?: $order->netherlands,
+                    'hg005'                 => $order->hg005 ?: $order->spain,
+                    'redMask'               => $order->redMask ?: $order->england,
+                    'doorHandler'           => $order->doorHandler ?: $order->austria,
+                    'medEinweg'             => $order->medEinweg ?: $order->portugal,
+                    'stoff'                 => isset($columnLimit) ? $order->order_total_amount : $order->stoff,
+                    'trennwand'             => $order->trennwand,
                     'thermometer'           => $order->thermometer,
                     'handDesif'             => $order->handsmittel,
                     'flachendes'            => $order->flachendes,
@@ -146,9 +151,9 @@ class Excel implements FromArray, WithHeadings, WithStyles, WithColumnWidths
                     'betrag'                => isset($columnLimit) ? $columnLimit : $order->order_total_amount,
                 );
 
-            $colorExportData[] = $formattedOrderProductColors;
+            $excelOrders[] = $formattedOrders;
         }
-        return $colorExportData;
+        return $excelOrders;
     }
 
 }

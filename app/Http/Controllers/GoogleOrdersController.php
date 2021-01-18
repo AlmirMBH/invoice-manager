@@ -2,48 +2,48 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Googlespreadsheet;
 use App\Models\Order;
+use App\Services\ApiKeys;
+use App\Services\Spreadsheet;
+use Illuminate\Http\Request;
 use Revolution\Google\Sheets\Facades\Sheets;
 
 class GoogleOrdersController extends Controller
 {
-    public function __invoke()
+    public function __invoke(Request $request, $project_id)
     {
-        $orders = Order::all();
+        $lastInsertedOrder = Googlespreadsheet::where('project_id', $project_id)->get('order_id');
 
-        foreach ($orders as $order) {
+        $lastInsertedOrderId = 0;
 
-            $append = [
-                $order->billing_company,
-                $order->billing_first_name,
-                $order->billing_last_name,
-                '',
-                $order->billing_email,
-                $order->billing_phone,
-                $order->id,
-                $order->order_status,
-                (string)$order->hyg_hg001,
-                (string)$order->typ_II,
-                (string)$order->typ_IIR,
-                (string)$order->n95_hg002,
-                (string)$order->schild_hg005,
-                (string)$order->hyg_red_masks,
-                (string)$order->door_handler,
-                (string)$order->med_einweg,
-                (string)$order->stoffmasken,
-                (string)$order->trennwand,
-                (string)$order->thermometer,
-                (string)$order->hand_disinfection,
-                (string)$order->flachendes,
-                (string)$order->hand_spender,
-                (string)$order->order_total_amount,
-            ];
-
-            Sheets::spreadsheet(env('POST_SPREADSHEET_ID'))
-                ->sheetById(env('POST_SHEET_ID'))
-                ->append([$append]);
+        foreach($lastInsertedOrder as $order){
+            $lastInsertedOrderId = $order->order_id;
         }
-        return redirect()->back();
+
+        $dbOrders = Order::where([['project_id', '=', $project_id], [ 'id', '>', $lastInsertedOrderId]])->get();
+
+        $orderData = (new Spreadsheet)->setOrders($dbOrders, $project_id);
+
+        $sheetApiKeys = ApiKeys::getSpreadsheetApiKeys($project_id);
+        Sheets::spreadsheet($sheetApiKeys['spreadsheetId'])->sheetById($sheetApiKeys['sheetId'])->append($orderData['spreadSheetOrders']);
+
+        $lastOrderId = end($orderData['orderIds']);
+
+        Googlespreadsheet::upsert(
+            ['project_id' => $project_id, 'order_id' => $lastOrderId, 'created_at' => now(), 'updated_at' => now()],
+            'project_id', ['order_id', 'updated_at']
+        );
+
+        $orderIds = array_reverse($orderData['orderIds']);
+        $firstNewOrderId = end($orderIds);
+
+        if (!empty($firstNewOrderId)) {
+            $request->session()->flash('success', 'New orders, starting from order ' . $firstNewOrderId . ' have been exported to your spreadsheet.');
+        }else{
+            $request->session()->flash('info', 'No new orders in database.');
+        }
+        return redirect()->route('index', $project_id);
     }
 
 }
