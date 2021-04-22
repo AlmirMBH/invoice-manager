@@ -214,8 +214,8 @@
                 @if($project_id == \App\Models\Project::$atemshutz)
                     <td>
                         <span class="contact-info">Reto Schaufelberger Eurotrends GmbH <br>
-                            Hinterrietstrasse 1<br>
-                            ch-8317 Tagelswangen <br>
+                            Schönbüelstrasse 34A<br>
+                            8330 Pfäffikon<br>
                             + 41 43 321 29 29 <br>
                             info@atemschutzmasken24.ch <br>
                             www.atemschutzmasken24.ch<br>
@@ -224,8 +224,8 @@
                 @elseif($project_id == \App\Models\Project::$flipflop)
                     <td>
                         <span class="contact-info">Reto Schaufelberger Eurotrends GmbH <br>
-                            Hinterrietstrasse 1<br>
-                            ch-8317 Tagelswangen <br>
+                            Schönbüelstrasse 34A<br>
+                            8330 Pfäffikon<br>
                             + 41 44 952 30 25 <br>
                             info@grass-flipflop.com <br>
                             www.grass-flipflop.com<br>
