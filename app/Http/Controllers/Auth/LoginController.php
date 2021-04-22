@@ -29,6 +29,7 @@ class LoginController extends Controller
      */
     protected $redirectTo = RouteServiceProvider::HOME;
 
+
     /**
      * Create a new controller instance.
      *
@@ -45,5 +46,21 @@ class LoginController extends Controller
         return $this->loggedOut($request) ? redirect()->back() : redirect('/');
     }
 
+    /**
+     * Show the application's login form.
+     *
+     */
 
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    protected function validateLogin(Request $request)
+    {
+        $request->validate([
+            $this->username() => 'required|string',
+            'password' => 'required|string',
+        ]);
+    }
 }

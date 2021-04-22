@@ -1,7 +1,6 @@
 <?php
 
-
-namespace App\AtemschutzmaskenClasses;
+namespace App\Services;
 
 use App\Models\Order;
 use Maatwebsite\Excel\Concerns\FromArray;
@@ -11,30 +10,29 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-
-class ProductAttributesService implements FromArray, WithHeadings, WithStyles, WithColumnWidths
+class ProductAttributes implements FromArray, WithHeadings, WithStyles, WithColumnWidths
 {
-
     use Exportable;
+
 
     public function headings(): array
     {
         return [
-            'Name',
-            'Surname',
-            'Black',
-            'Charcoal',
-            'White',
+            'Kunde',
             'Navy',
             'Orange',
-            'Order number',
+            'Charcoal',
+            'Schwarz',
+            'Weiss',
+            'OrderModel number',
         ];
     }
+
 
     public function columnWidths(): array
     {
         return [
-            'A' => 20,
+            'A' => 30,
             'B' => 20,
             'C' => 20,
             'D' => 20,
@@ -45,12 +43,11 @@ class ProductAttributesService implements FromArray, WithHeadings, WithStyles, W
         ];
     }
 
+
     public function styles(Worksheet $sheet)
     {
         return [
-
             1    => ['font' => ['bold' => true, 'size' => 16] ],
-
             // Styling a specific cell by coordinate.
             //'B2' => ['font' => ['italic' => true]],
 
@@ -59,6 +56,7 @@ class ProductAttributesService implements FromArray, WithHeadings, WithStyles, W
         ];
     }
 
+
     public function array(): array{
 
         $orders = Order::all();
@@ -66,45 +64,44 @@ class ProductAttributesService implements FromArray, WithHeadings, WithStyles, W
         foreach($orders as $order){
             $products = json_decode($order->products);
             $black = ''; $charcoal = ''; $white = ''; $navy = ''; $orange = '';
+
             foreach ($products as $product){
-                if($product->sku == '14-01'){
-                    $color = $product->meta_data[0]->value;
-                    if ($color === 'schwarz') {
-                        $black = $product->quantity;
-                    }
-                    if ($color === 'charcoal') {
-                        $charcoal = $product->quantity;
-                    }
-                    if ($color === 'weiss') {
-                        $white = $product->quantity;
-                    }
-                    if ($color === 'navy') {
-                        $navy = $product->quantity;
-                    }
-                    if ($color === 'orange') {
-                        $orange = $product->quantity;
-                    }
+                    if($product->sku == '009AM'){
+
+                        $color = $product->meta_data[0]->value;
+
+                        if ($color === 'schwarz') {
+                            $black = $product->quantity;
+                        }
+                        if ($color === 'charcoal') {
+                            $charcoal = $product->quantity;
+                        }
+                        if ($color === 'weiss') {
+                            $white = $product->quantity;
+                        }
+                        if ($color === 'navy') {
+                            $navy = $product->quantity;
+                        }
+                        if ($color === 'orange') {
+                            $orange = $product->quantity;
+                        }
                 }
             }
+
+
             $formattedOrderProductColors = array(
-                'first_name'            => $order->billing_first_name,
-                'last_name'             => $order->billing_last_name,
-                'qty_color_black'       => $black,
-                'qty_color_charcoal'    => $charcoal,
-                'qty_color_white'       => $white,
+                'first_name'            => $order->billing_first_name . ' ' . $order->billing_last_name,
                 'qty_color_navy'        => $navy,
                 'qty_color_orange'      => $orange,
+                'qty_color_charcoal'    => $charcoal,
+                'qty_color_black'       => $black,
+                'qty_color_white'       => $white,
                 'order_id'              => $order->id
             );
 
             $colorExportData[] = $formattedOrderProductColors;
         }
-
-
         return $colorExportData;
-
     }
-
-
 }
 

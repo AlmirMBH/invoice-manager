@@ -7,6 +7,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
+
+    <style>
+        .action-buttons{width: 150px;}
+        #orders-table tbody tr td{
+            vertical-align: middle;
+        }
+    </style>
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
     <!-- Fonts -->
@@ -22,9 +29,15 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-dark bg-dark shadow-sm">
             <div class="container-fluid">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name') }}
+                @if(isset($project_id))
+                <a class="navbar-brand" href="{{ route('index', $project_id) }}">
+                    @if($project_id == \App\Models\Project::$atemshutz)
+                        {{ 'Atemschutzmasken' }}
+                    @elseif(\App\Models\Project::$flipflop)
+                        {{ 'FlipFlop' }}
+                    @endif
                 </a>
+                @endif
                 <button class="navbar-toggler" type="button" data-toggle="collapse"
                         data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
@@ -35,9 +48,25 @@
                     <!-- Left Side Of Navbar -->
                     @if(Auth::check())
                         <ul class="navbar-nav mr-auto">
-                            <li class="nav-item"><a href="{{ route('home') }}" class="nav-link">Home</a></li>
-                            <li class="nav-item"><a href="{{ route('excel.index') }}" class="nav-link">View Filtered Orders</a></li>
+                            @if(isset($project_id))
+                            <li class="nav-item"><a href="{{ route('index', $project_id) }}" class="nav-link">Home</a></li>
+                                <li class="nav-item"><a href="{{ route('excel.index', $project_id) }}" class="nav-link">View Filtered Orders</a></li>
+                                <li class="nav-item dropdown">
+                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                        {{ __('Choose shop') }}
+                                    </a>
+
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('index', \App\Models\Project::$atemshutz) }}">
+                                            {{ __('Atemschutzmasken') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('index', \App\Models\Project::$flipflop) }}">
+                                            {{ __('FlipFlop') }}
+                                        </a>
+                                    </div>
+                                </li>
 {{--                            <li class="nav-item"><a href="{{route('upload-file')}}" class="nav-link">Upload Invoice</a></li>--}}
+                            @endif
                         </ul>
                     @endif
 

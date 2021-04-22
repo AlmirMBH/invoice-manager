@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,6 +16,10 @@ class Order extends Model
 
     public $incrementing = false;
 
+    public static $man = 'man';
+
+    public static $woman = 'woman';
+
     public static $message_man = 'Sehr geehrter Herr';
 
     public static $message_woman = 'Sehr geehrte Frau';
@@ -25,6 +30,12 @@ class Order extends Model
 
     public static $piece = 'Stk. ';
 
+    public static function currentDate(){
+        return Carbon::now()->formatLocalized('%d. %B. %Y');
+    }
 
 
+    public function projects(){
+        return $this->belongsTo(Project::class);
+    }
 }

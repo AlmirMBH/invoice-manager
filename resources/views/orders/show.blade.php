@@ -12,10 +12,10 @@
                                 <h4>EXPORT ORDER</h4>
                             </div>
                             <div class="d-flex mt-3 mb-5">
-                                <a href="{{ route('generate-man-pdf', $order->id) }}" class="btn btn-dark mr-2"><i class="fas fa-file-download mr-1"></i> PDF Man</a>
-                                <a href="{{ route('generate-woman-pdf', $order->id) }}" class="btn btn-dark mr-2"><i class="fas fa-file-download mr-1"></i> PDF Woman</a>
-                                <a href="{{ route('generate-man-doc', $order->id) }}" class="btn btn-info mr-2"><i class="fas fa-file-download mr-1"></i> Word Man</a>
-                                <a href="{{ route('generate-woman-doc', $order->id) }}" class="btn btn-info"><i class="fas fa-file-download mr-1"></i> Word Woman</a>
+                                <a href="{{ route('generate-pdf', ['project_id'=>$project_id, 'id'=>$order->id, 'customer_id' => App\Models\Order::$man] ) }}" class="btn btn-dark mr-2"><i class="fas fa-file-download mr-1"></i> PDF Man</a>
+                                <a href="{{ route('generate-pdf', ['project_id'=>$project_id, 'id'=>$order->id, 'customer_id' => App\Models\Order::$woman]) }}" class="btn btn-dark mr-2"><i class="fas fa-file-download mr-1"></i> PDF Woman</a>
+                                <a href="{{ route('generate-doc', ['project_id'=>$project_id, 'id'=>$order->id, 'customer_id' => App\Models\Order::$man]) }}" class="btn btn-info mr-2"><i class="fas fa-file-download mr-1"></i> Word Man</a>
+                                <a href="{{ route('generate-doc', ['project_id'=>$project_id, 'id'=>$order->id, 'customer_id' => App\Models\Order::$woman]) }}" class="btn btn-info"><i class="fas fa-file-download mr-1"></i> Word Woman</a>
                             </div>
                         </div>
                         <div class="d-flex justify-content-around mb-5">
@@ -114,6 +114,7 @@
                                         <th>PRODUCT NAME</th>
                                         <th>SKU</th>
                                         <th>PRODUCT PRICE</th>
+                                        <th>PRODUCT VARIATION</th>
                                         <th>PRODUCT QUANTITY</th>
                                         <th>PRODUCT SUBTOTAL</th>
                                         <th>SHIPPING TYPE</th>
@@ -121,23 +122,33 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+
                                     @foreach(json_decode($order->products) as $product)
                                         <tr>
                                             <td>{{ $productName = str_replace(['<span>', '</span>'], '', $product->name) }}</td>
                                             <td>{{ $product->sku }}</td>
                                             <td>{{$product->price}}</td>
+                                            @if($product->meta_data)
+                                                @foreach($product->meta_data as $item)
+                                                        <td>{{$item->value}}</td>
+                                                @endforeach
+                                            @elseif(!$product->meta_data)
+                                                <td>{{''}}</td>
+                                            @endif
                                             <td>{{$product->quantity}}</td>
                                             <td>{{$product->subtotal}}</td>
                                             <td>{{$order->shipping_method_title}}</td>
                                             <td>{{$order->order_shipping_amount}}</td>
                                         </tr>
                                     @endforeach
+
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <th>PRODUCT NAME</th>
                                         <th>SKU</th>
                                         <th>PRODUCT PRICE</th>
+                                        <th>PRODUCT VARIATION</th>
                                         <th>PRODUCT QUANTITY</th>
                                         <th>PRODUCT SUBTOTAL</th>
                                         <th>SHIPPING TYPE</th>
