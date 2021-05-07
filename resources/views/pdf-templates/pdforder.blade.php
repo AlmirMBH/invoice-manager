@@ -158,7 +158,7 @@
     </div>
 
     <div class="invoice-date">
-        8317 Tagelswangen, {{App\Models\Order::currentDate()}}
+        8330 Pfäffikon, {{App\Models\Order::currentDate()}}
     </div>
 
     @if($customer_id == 'man')

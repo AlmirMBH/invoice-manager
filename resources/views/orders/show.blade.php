@@ -128,13 +128,17 @@
                                             <td>{{ $productName = str_replace(['<span>', '</span>'], '', $product->name) }}</td>
                                             <td>{{ $product->sku }}</td>
                                             <td>{{$product->price}}</td>
-                                            @if($product->meta_data)
-                                                @foreach($product->meta_data as $item)
-                                                        <td>{{$item->value}}</td>
-                                                @endforeach
-                                            @elseif(!$product->meta_data)
-                                                <td>{{''}}</td>
-                                            @endif
+                                            <td>
+                                                @if($product->meta_data)
+                                                    @foreach($product->meta_data as $item)
+                                                        @if($product->variation_id != null)
+                                                            {{ $item->value }}
+                                                        @endif
+                                                    @endforeach
+                                                @elseif(!$product->meta_data)
+                                                    <td>{{''}}</td>
+                                                @endif
+                                            </td>
                                             <td>{{$product->quantity}}</td>
                                             <td>{{$product->subtotal}}</td>
                                             <td>{{$order->shipping_method_title}}</td>
